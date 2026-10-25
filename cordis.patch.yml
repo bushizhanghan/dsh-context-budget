@@ -1,0 +1,4 @@
+# dsh bundle layer: mount the context-budget plugin (lib/index.js).
+- insert:
+    - id: context-budget
+      name: '@bushizhanghan/dsh-context-budget'
