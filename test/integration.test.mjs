@@ -14,8 +14,10 @@ const SESSIONS = join(homedir(), '.dsh', 'sessions')
 
 /**
  * Find a session with the full per-turn injection shape we audit:
- * system prompt + skill catalog + request/header. The root has a workspace
- * level between it and the session dirs, so this walks down.
+ * system prompt + skill catalog + request/header, and more than one turn —
+ * repetition is measured across turns, so a one-turn session has none and the
+ * assertion would be about nothing. The root has a workspace level between it
+ * and the session dirs, so this walks down.
  */
 function sessionWithInjection() {
   for (const ws of readdirSync(SESSIONS, { withFileTypes: true })) {
@@ -27,7 +29,7 @@ function sessionWithInjection() {
       try {
         const text = execFileSync('zstd', ['-dc', f], { maxBuffer: 64 * 1024 * 1024 })
         const s = text[0] === 0xff && text[1] === 0xfe ? text.toString('utf16le') : text.toString('utf8')
-        if (s.includes('"skill-catalog"') && s.includes('"request/header"') && s.includes('"system/message"')) return f
+        if (s.includes('"skill-catalog"') && s.includes('"request/header"') && s.includes('"system/message"') && s.split('"turn/start"').length > 4) return f
       } catch {}
     }
   }

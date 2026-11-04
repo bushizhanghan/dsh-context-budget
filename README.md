@@ -83,16 +83,19 @@ skill catalog: 59 skills, 5022 est tok per turn
 - **`estimateTokens` 是估计值，报告里一律标 `est`。** 这个插件要的是**比例**——同一除数在比值里抵消。需要精确数字时用 `request/context` 的 `contextWindow` 做分母。
 - **懒加载规则故意保守**：只标记"本轮从未调用且描述 ≥ 60 token"的技能。用过一次的技能永不标记；没有使用信号的技能不猜测它已死（它可能在别的会话里被用）。
 - **未识别的 `source.kind` 归入 `other` 而不是丢弃**，否则未来 DSH 新增注入面会让审计数字悄悄变小而没人发现。
+- **轮次靠 `turn/start` 累加，不能只读 `data.turn`。** `user/message` 和 `request/header` 根本不带 `turn` 字段（只有 `system/message`、`tool/*`、`turn/start` 带），只读它会把全部注入块和全部请求塞进第 0 轮——173 轮的会话会报成 37 轮。
+- **工具 schema 按请求累加，不按轮覆盖。** 同一轮里每个请求都会重发整套 schema，只留最后一份会把成本算成一份。
 
 ## 测试
 
 ```sh
-node --test test/
+node --test                              # 19 个单测 + 集成测试
 ```
 
 `test/engine.test.mjs` 一条规则一个测试（token 估计、CJK、分类映射、签名、重复判定、技能治理、工具分组、空会话不除零）。
 `test/integration.test.mjs` 用假 `ctx = { tools: { register } }` 启动插件，驱动全部 4 个工具打真实会话日志，
-并断言反向情况：不存在的会话/根目录必须返回 `ok: false`。
+并断言反向情况：不存在的会话/根目录必须返回 `ok: false`。集成测试会挑一个**多于一轮**的会话，
+因为重复注入是跨轮比较出来的，单轮会话没有重复可测。
 
 ## License
 
