@@ -296,3 +296,19 @@ test('auditSession on an empty session is honest rather than dividing by zero', 
   assert.equal(result.wasteRatio, 0)
   assert.equal(result.composition.totalTokens, 0)
 })
+
+// The host never validates tool input against `parameters`, so a number or an
+// object can reach a path argument. Every tool must answer, never throw.
+test('a wrong-typed argument is refused, never thrown', async () => {
+  const { apply } = await import('../lib/index.js')
+  const registry = new Map()
+  const ctx = { tools: { register: (t) => registry.set(t.name, t) }, on: () => {}, effect: (fn) => fn(), web: {}, webServer: { register: () => {} }, setInterval: () => 0, setTimeout: () => 0, log: () => {} }
+  apply(ctx, {})
+  const cases = [["ctx_budget","session"],["ctx_budget_skills","session"],["ctx_budget_tools","session"]]
+  for (const [tool, param] of cases) {
+    for (const bad of [123, true, { a: 1 }, [1]]) {
+      const result = await registry.get(tool).execute({ [param]: bad }, { signal: undefined })
+      assert.equal(result.ok, false, tool + " accepted " + param + "=" + JSON.stringify(bad))
+    }
+  }
+})

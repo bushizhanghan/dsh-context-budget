@@ -89,7 +89,7 @@ skill catalog: 59 skills, 5022 est tok per turn
 ## 测试
 
 ```sh
-node --test                              # 19 个单测 + 集成测试
+node --test                              # 20 个单测 + 集成测试
 ```
 
 `test/engine.test.mjs` 一条规则一个测试（token 估计、CJK、分类映射、签名、重复判定、技能治理、工具分组、空会话不除零）。

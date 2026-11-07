@@ -1,6 +1,6 @@
 {
   "name": "@bushizhanghan/dsh-context-budget",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Audit where each turn's context budget goes: per-turn composition (AGENTS.md / skill catalog / tool schemas / runtime context / history), repeated injection of byte-identical content (pure waste), skill-catalog governance, and tool-schema inflation. Deterministic, no LLM. 上下文预算审计：每轮注入构成、重复注入浪费、技能目录治理、工具 schema 膨胀。",
   "type": "module",
   "main": "lib/index.js",
